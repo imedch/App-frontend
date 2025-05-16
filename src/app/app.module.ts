@@ -16,6 +16,7 @@ import { ChatBotComponent } from './chat-bot/chat-bot.component';
 import { LogInComponent } from './log-in/log-in.component';
 import { SignupComponent } from './signup/signup.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
+import { AuthGuard } from './auth.guard';
 
 
 @NgModule({
@@ -41,7 +42,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
     ReactiveFormsModule,
     FormsModule
   ],
-  providers: [],
+  providers: [AuthGuard],
   exports: [SafePipe],
   // Ensure SafePipe is available for use in other components
   bootstrap: [AppComponent,CreationCVComponent]

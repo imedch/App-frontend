@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -13,13 +13,11 @@ export class LogInComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage: string | null = null;
   loading: boolean = false;
-  returnUrl: string = '/home';
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute
+    private router: Router
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -29,15 +27,14 @@ export class LogInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Get return url from route parameters or default to '/home'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
-    
-    // If already logged in, redirect to returnUrl
-    if (localStorage.getItem('token')) {
-      this.router.navigateByUrl(this.returnUrl);
+    // ✅ Si l'utilisateur est déjà connecté, rediriger vers /home
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.router.navigate(['/home']);
     }
   }
 
+  // Getters pratiques pour le template
   get username() {
     return this.loginForm.get('username');
   }
@@ -48,7 +45,7 @@ export class LogInComponent implements OnInit {
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
-      this.errorMessage = 'Please correct the errors in the form.';
+      this.errorMessage = 'Veuillez corriger les erreurs dans le formulaire.';
       this.loginForm.markAllAsTouched();
       return;
     }
@@ -58,31 +55,47 @@ export class LogInComponent implements OnInit {
 
     const { username, password, rememberMe } = this.loginForm.value;
 
+    console.log('🔐 Tentative de connexion :', { username, rememberMe });
+
     this.authenticateUser({ username, password }).subscribe({
       next: (response) => {
+        console.log('✅ Connexion réussie :', response);
+        this.loading = false;
+
+        // ✅ Stockage du token
         localStorage.setItem('token', response.token);
+
         if (rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
+          // Exemple : stocker dans localStorage pour persistance (déjà fait ci-dessus)
+          console.log('📝 Session persistante activée');
         }
-        this.router.navigateByUrl(this.returnUrl);
+
+        // Rediriger vers la page d'accueil
+        this.router.navigate(['/home']);
       },
       error: (error) => {
-        this.errorMessage = 'Invalid credentials or server error. Please try again.';
+        console.error('❌ Échec de connexion :', error);
+        this.errorMessage = 'Identifiants incorrects ou erreur serveur. Veuillez réessayer.';
         this.loading = false;
       }
     });
   }
 
+  /**
+   * 🔐 Simule une authentification vers un backend (remplace cette méthode par un appel réel à ton API)
+   */
   private authenticateUser(credentials: { username: string; password: string }): Observable<any> {
-    // Replace this with actual API call
     return new Observable((observer) => {
+      const staticUsername = 'admin';
+      const staticPassword = 'admin123';
+
       setTimeout(() => {
-        if (credentials.username === 'admin' && credentials.password === 'admin123') {
+        if (credentials.username === staticUsername && credentials.password === staticPassword) {
           observer.next({ token: 'fake-jwt-token' });
+          observer.complete();
         } else {
-          observer.error({ status: 401 });
+          observer.error({ status: 401, message: 'Identifiants invalides' });
         }
-        observer.complete();
       }, 1000);
     });
   }
