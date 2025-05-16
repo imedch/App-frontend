@@ -4,7 +4,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { HeadrsComponent } from './headrs/headrs.component';
+import { HeadersComponent } from './headers/headers.component';
 import { HomeComponent } from './home/home.component';
 import { NouveauterComponent } from './nouveauter/nouveauter.component';
 import { TestMonCvComponent } from './test-mon-cv/test-mon-cv.component';
@@ -21,7 +21,7 @@ import { ForgotPasswordComponent } from './forgot-password/forgot-password.compo
 @NgModule({
   declarations: [
     AppComponent,
-    HeadrsComponent,
+    HeadersComponent,
     HomeComponent,
     NouveauterComponent,
     TestMonCvComponent,
