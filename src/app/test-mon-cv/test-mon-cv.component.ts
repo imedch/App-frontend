@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'app-test-mon-cv',
   templateUrl: './test-mon-cv.component.html',
@@ -19,8 +19,22 @@ export class TestMonCvComponent {
   isGettingNote = false;
   Cv_Note: any = null;
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef,private router:Router) {}
+  getBadgeClass(score: number): string {
+  if (score < 50) {
+    return 'bg-danger text-light'; // Rouge
+  } else if (score < 70) {
+    return 'bg-warning text-dark'; // Jaune
+  } else {
+    return 'bg-success text-light'; // Vert
+  }
+}
 
+
+
+  goToChat(): void {
+    this.router.navigate(['/chat-bot']);
+  }
   // Handle file selection
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
@@ -110,6 +124,8 @@ export class TestMonCvComponent {
     }
 
     const uploadData = {
+      username: localStorage.getItem('username'),
+      usermail: localStorage.getItem('email'),
       fileName: this.selectedFile.name,
       fileType: this.selectedFile.type,
       fileSize: this.selectedFile.size
