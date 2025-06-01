@@ -4,7 +4,7 @@
     <div class="col-lg-7">
       <div class="card shadow border-0 mb-4">
         <div class="card-body">
-          <h4 class="text-primary text-center">Création de CV</h4>
+          <h4 class="text-primary text-center">Create CV</h4>
           <form [formGroup]="cvForm" (ngSubmit)="generateCV()">
             <!-- ℹ️ Infos personnelles -->
             <div formGroupName="personalInfo" class="mb-4">
@@ -23,7 +23,7 @@
               <h5>Formations</h5>
               <div *ngFor="let group of sections[0].getControls(); let i = index" [formGroupName]="i" class="rounded border p-3 mb-3">
                 <input formControlName="diplome" class="form-control mb-2" placeholder="Diplôme" />
-                <input formControlName="et  ablissement" class="form-control mb-2" placeholder="Établissement" />
+                <input formControlName="etablissement" class="form-control mb-2" placeholder="Établissement" />
                 <input formControlName="dateDebut" type="date" class="form-control mb-2" />
                 <input formControlName="dateFin" type="date" class="form-control mb-2" />
                 <textarea formControlName="description" class="form-control mb-2" rows="2" placeholder="Description"></textarea>
@@ -95,14 +95,20 @@
             <h6 *ngIf="cvForm.value?.formation?.length">🎓 Formations</h6>
             <div *ngFor="let f of cvForm.value.formation">
               <strong>{{ f.diplome }}</strong><br />
-              <small>{{ f.etablissement }} ({{ f.dateDebut }} - {{ f.dateFin }})</small><br />
+              <small>
+                <span *ngIf="f.etablissement">🏫 {{ f.etablissement }}</span>
+                <span *ngIf="f.dateDebut || f.dateFin">
+                  ({{ f.dateDebut }} - {{ f.dateFin }})
+                </span>
+              </small><br />
               <p>{{ f.description }}</p>
             </div>
 
             <h6 *ngIf="cvForm.value?.experience?.length">💼 Expériences</h6>
             <div *ngFor="let e of cvForm.value.experience">
               <strong>{{ e.poste }}</strong><br />
-              <small>{{ e.entreprise }} ({{ e.dateDebut }} - {{ e.dateFin }})</small><br />
+              <small>
+                {{ e.entreprise }} ({{ e.dateDebut }} - {{ e.dateFin }})</small><br />
               <p>{{ e.description }}</p>
             </div>
 
