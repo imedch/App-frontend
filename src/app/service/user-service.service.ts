@@ -52,4 +52,16 @@ export class UserServiceService {
   clearUsername(): void {
     this.usernameSubject.next(null);
   }
+
+  // Vérifier le code de confirmation
+  verifyCode(data: { email: string; code: string }): Observable<any> {
+    // À adapter selon ton backend, ici exemple avec /verify-code
+    return this.http.post<any>('http://localhost:8081/verify-code', data);
+  }
+
+  // Renvoyer le code de confirmation
+  resendConfirmationCode(email: string): Observable<any> {
+    // À adapter selon ton backend, ici exemple avec /resend-code
+    return this.http.post<any>('http://localhost:8081/resend-code', { email });
+  }
 }

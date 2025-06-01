@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-// Utilise le service utilisateur
 import { UserServiceService } from '../service/user-service.service';
 
 @Component({
@@ -15,6 +14,7 @@ export class UpdatePasswordComponent implements OnInit {
   errorMessage: string | null = null;
   email: string = '';
   code: string = '';
+  userId: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -31,6 +31,7 @@ export class UpdatePasswordComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
       this.code = params['code'] || '';
+      this.userId = params['id'] || '';
     });
   }
 
@@ -46,30 +47,19 @@ export class UpdatePasswordComponent implements OnInit {
     }
 
     const newPassword = this.updatePasswordForm.value.newPassword;
+    console.log('Attempting to update password for:', this.email, 'New password:', newPassword);
 
-    // Utilise le service pour récupérer et mettre à jour l'utilisateur
-    this.userService.getUserByEmail(this.email).subscribe({
-      next: (users) => {
-        if (users.length > 0) {
-          const user = users[0];
-          this.userService.updateUser(user.id, { password: newPassword }).subscribe({
-            next: () => {
-              this.successMessage = 'Password updated successfully!';
-              this.errorMessage = null;
-              setTimeout(() => this.router.navigate(['/log-in']), 1500);
-            },
-            error: () => {
-              this.errorMessage = 'Failed to update password.';
-              this.successMessage = null;
-            }
-          });
-        } else {
-          this.errorMessage = 'User not found.';
-          this.successMessage = null;
-        }
+    // Utilise l'id pour mettre à jour l'utilisateur
+    this.userService.updateUser(this.userId, { password: newPassword }).subscribe({
+      next: (res) => {
+        console.log('Password update response:', res);
+        this.successMessage = 'Password updated successfully!';
+        this.errorMessage = null;
+        setTimeout(() => this.router.navigate(['/log-in']), 1500);
       },
-      error: () => {
-        this.errorMessage = 'Error searching for user.';
+      error: (err) => {
+        console.error('Failed to update password:', err);
+        this.errorMessage = 'Failed to update password.';
         this.successMessage = null;
       }
     });

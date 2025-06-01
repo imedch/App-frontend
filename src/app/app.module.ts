@@ -24,6 +24,7 @@ import { ManagerProfileComponent } from './manager-profile/manager-profile.compo
 import { ShowCvuserComponent } from './show-cvuser/show-cvuser.component';
 import { MypostComponent } from './mypost/mypost.component';
 import { ChatAssistantComponent } from './chat-assistant/chat-assistant.component';
+import { ConfirmCodeComponent } from './confirm-code/confirm-code.component';
 
 
 @NgModule({
@@ -47,6 +48,7 @@ import { ChatAssistantComponent } from './chat-assistant/chat-assistant.componen
     ShowCvuserComponent,
     MypostComponent,
     ChatAssistantComponent,
+    ConfirmCodeComponent,
   ],
   imports: [
     BrowserModule,
