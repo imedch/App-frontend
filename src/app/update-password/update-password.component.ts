@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+// Utilise le service utilisateur
+import { UserServiceService } from '../service/user-service.service';
 
 @Component({
   selector: 'app-update-password',
@@ -18,7 +19,7 @@ export class UpdatePasswordComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
-    private http: HttpClient,
+    private userService: UserServiceService,
     private router: Router
   ) {
     this.updatePasswordForm = this.fb.group({
@@ -46,12 +47,12 @@ export class UpdatePasswordComponent implements OnInit {
 
     const newPassword = this.updatePasswordForm.value.newPassword;
 
-    // Update the user's password in json-server
-    this.http.get<any[]>(`http://localhost:8081/users?email=${this.email}`).subscribe({
+    // Utilise le service pour récupérer et mettre à jour l'utilisateur
+    this.userService.getUserByEmail(this.email).subscribe({
       next: (users) => {
         if (users.length > 0) {
           const user = users[0];
-          this.http.patch(`http://localhost:8081/users/${user.id}`, { password: newPassword }).subscribe({
+          this.userService.updateUser(user.id, { password: newPassword }).subscribe({
             next: () => {
               this.successMessage = 'Password updated successfully!';
               this.errorMessage = null;

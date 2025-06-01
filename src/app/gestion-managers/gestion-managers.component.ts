@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { ManagerServiceService } from '../service/manager-service.service';
 
 @Component({
   selector: 'app-gestion-managers',
@@ -12,7 +12,7 @@ export class GestionManagersComponent implements OnInit {
   showAddForm: boolean = false;
   newManager = { username: '', email: '' };
 
-  constructor(private http: HttpClient) {
+  constructor(private managerService: ManagerServiceService) {
     const username = localStorage.getItem('username');
     this.isAdmin = username === 'admin';
   }
@@ -22,7 +22,7 @@ export class GestionManagersComponent implements OnInit {
   }
 
   loadManagers() {
-    this.http.get<any[]>('http://localhost:8081/managers').subscribe({
+    this.managerService.getAllManagers().subscribe({
       next: (data) => this.managers = data,
       error: (err) => console.error('Failed to load managers:', err)
     });
@@ -52,7 +52,7 @@ export class GestionManagersComponent implements OnInit {
       role: 'manager' 
     };
 
-    this.http.post('http://localhost:8081/managers', managerToAdd).subscribe({
+    this.managerService.addManager(managerToAdd).subscribe({
       next: () => {
         this.toggleAddForm();
         this.loadManagers();
@@ -63,7 +63,7 @@ export class GestionManagersComponent implements OnInit {
   }
 
   deleteManager(manager: any) {
-    this.http.delete(`http://localhost:8081/managers/${manager.id}`).subscribe({
+    this.managerService.deleteManager(manager.id).subscribe({
       next: () => this.loadManagers(),
       error: (err) => alert('Failed to delete manager: ' + err.message)
     });

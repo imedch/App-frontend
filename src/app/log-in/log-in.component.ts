@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { UserServiceService } from '../service/user-service.service';
+import { ManagerServiceService } from '../service/manager-service.service';
 
 @Component({
   selector: 'app-log-in',
@@ -18,7 +20,9 @@ export class LogInComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+    private userService: UserServiceService,
+    private managerService: ManagerServiceService
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],

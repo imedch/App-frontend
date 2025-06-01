@@ -1,13 +1,16 @@
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+// Import services
+import { ParserServiceService } from '../service/parser-service.service';
+import { UserServiceService } from '../service/user-service.service';
+import { HttpClient } from '@angular/common/http';
+
 @Component({
   selector: 'app-test-mon-cv',
   templateUrl: './test-mon-cv.component.html',
   styleUrls: ['./test-mon-cv.component.css']
 })
-export class TestMonCvComponent {
+export class TestMonCvComponent implements OnInit {
   selectedFile: File | null = null;
   pdfSrc: string = '';
   uploadProgress = 0;
@@ -18,28 +21,30 @@ export class TestMonCvComponent {
   getNoteProgress = 0;
   isGettingNote = false;
   Cv_Note: any = null;
-  recommendations: string[] = []; // <-- Add this property
+  recommendations: string[] = [];
   skillRecommendations: any = null;
   learningPath: any = null;
   showResults: boolean = false;
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef,private router:Router) {}
+  constructor(
+    private parserService: ParserServiceService,
+    private userService: UserServiceService,
+    private cdr: ChangeDetectorRef,
+    private router: Router,
+    private http: HttpClient // Only for upload notification, can be refactored too
+  ) {}
+
   getBadgeClass(score: number): string {
-  if (score < 50) {
-    return 'bg-danger text-light'; // Rouge
-  } else if (score < 70) {
-    return 'bg-warning text-dark'; // Jaune
-  } else {
-    return 'bg-success text-light'; // Vert
+    if (score < 50) {
+      return 'bg-danger text-light';
+    } else if (score < 70) {
+      return 'bg-warning text-dark';
+    } else {
+      return 'bg-success text-light';
+    }
   }
-}
-
-
 
   goToChat(): void {
-    console.log('Go to Chat clicked');
-    console.log('pdfisupdated:', this.pdfisupdated);
-    console.log('canIncrementCV:', localStorage.getItem('canIncrementCV'));
     if (this.pdfisupdated && localStorage.getItem('canIncrementCV') === 'true') {
       this.incrementNbrPosts();
       localStorage.removeItem('canIncrementCV');
@@ -47,7 +52,7 @@ export class TestMonCvComponent {
     }
     this.router.navigate(['/chat-bot']);
   }
-  // Handle file selection
+
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
@@ -60,10 +65,9 @@ export class TestMonCvComponent {
         console.warn('❌ Fichier non PDF sélectionné');
         return;
       }
-
       this.selectedFile = file;
       this.errorMessage = null;
-      this.pdfSrc = ''; // Reset preview
+      this.pdfSrc = '';
       this.pdfisupdated = false;
       console.log('✅ Fichier sélectionné :', file.name);
     } else {
@@ -74,22 +78,18 @@ export class TestMonCvComponent {
     }
   }
 
-  // Simulate file upload and display PDF
   uploadCV() {
     if (!this.selectedFile) {
       this.errorMessage = 'Veuillez sélectionner un fichier PDF.';
       console.warn('⚠️ Aucun fichier sélectionné');
       return;
     }
-
     this.uploadProgress = 0;
     this.errorMessage = null;
     const progressInterval = setInterval(() => {
       this.uploadProgress += 10;
-      console.log(`⏳ Progression : ${this.uploadProgress}%`);
       if (this.uploadProgress >= 100) {
         clearInterval(progressInterval);
-        // NE PAS incrémenter ici !
         console.log('✅ Téléchargement terminé !');
         this.displayPDF();
         this.notifyBackendCVUpload();
@@ -97,20 +97,18 @@ export class TestMonCvComponent {
     }, 200);
   }
 
-  // Display the PDF file
   private displayPDF() {
     if (!this.selectedFile) {
       this.errorMessage = 'Aucun fichier sélectionné pour l\'aperçu.';
       console.warn('⚠️ Aucun fichier pour l\'aperçu');
       return;
     }
-
     const reader = new FileReader();
     reader.onload = (e: ProgressEvent<FileReader>) => {
       if (e.target?.result) {
         this.pdfSrc = e.target.result as string;
         this.pdfisupdated = true;
-        this.cdr.detectChanges(); // Ensure Angular updates the view
+        this.cdr.detectChanges();
         console.log('📄 PDF affiché avec succès');
       } else {
         this.errorMessage = 'Erreur lors de la lecture du fichier PDF.';
@@ -128,13 +126,11 @@ export class TestMonCvComponent {
     reader.readAsDataURL(this.selectedFile);
   }
 
-  // Notify backend of CV upload
   private notifyBackendCVUpload(): void {
     if (!this.selectedFile) {
       console.warn('⚠️ Aucun fichier pour la notification backend');
       return;
     }
-
     const uploadData = {
       username: localStorage.getItem('username'),
       usermail: localStorage.getItem('email'),
@@ -142,10 +138,8 @@ export class TestMonCvComponent {
       fileType: this.selectedFile.type,
       fileSize: this.selectedFile.size
     };
-
-    console.log('📤 Envoi des données au backend :', uploadData);
-
-    this.sendUploadNotification(uploadData).subscribe({
+    // Utilise http direct ici, ou crée un service dédié si besoin
+ /*   this.http.post('http://localhost:8081/api/receive_data', uploadData).subscribe({
       next: (response) => {
         console.log('✅ Backend notifié avec succès:', response);
       },
@@ -154,41 +148,30 @@ export class TestMonCvComponent {
         this.errorMessage = 'Erreur lors de la communication avec le serveur.';
         this.cdr.detectChanges();
       }
-    });
-
-    // SUPPRIMER cette ligne :
-    // this.incrementNbrPosts();
-  }
-
-  // Send API request to backend
-  private sendUploadNotification(uploadData: any): Observable<any> {
-    const apiUrl = 'http://localhost:8081/api/receive_data'; // Replace with your actual backend URL
-    return this.http.post(apiUrl, uploadData);
+    });*/
   }
 
   getMyNote(): void {
     this.getNoteProgress = 0;
     this.isGettingNote = true;
-    this.showResults = false; // Masquer avant le chargement
-
+    this.showResults = false;
     const interval = setInterval(() => {
       if (this.getNoteProgress < 100) {
         this.getNoteProgress += 10;
       } else {
         clearInterval(interval);
-        this.http.get<any>('http://localhost:8081/scores').subscribe({
+        this.parserService.getScores().subscribe({
           next: (scores) => {
             this.customScore = scores.custom;
             this.recommendations = scores.recommendations || [];
-            // ...autres traitements...
-            this.showResults = true; // Afficher les résultats après succès
+            this.showResults = true;
           },
           error: (err) => {
             this.errorMessage = 'Failed to fetch scores.';
             this.customScore = null;
             this.isGettingNote = false;
             this.recommendations = [];
-            this.showResults = false; // Ne pas afficher en cas d’erreur
+            this.showResults = false;
           }
         });
       }
@@ -201,19 +184,14 @@ export class TestMonCvComponent {
       console.warn('No email in localStorage');
       return;
     }
-
-    this.http.get<any[]>(`http://localhost:8081/users?email=${email}`).subscribe({
+    this.userService.getUserByEmail(email).subscribe({
       next: (users) => {
         if (users.length > 0) {
           const user = users[0];
-          
           const newNbrPosts = (user.Nbr_Posts || 0) + 1;
           const lastcvName = this.selectedFile ? this.selectedFile.name : user.lastcvName;
-          //const custom.total_score = user.Cv_Note || 0;
-          console.log('User found:', user);
-          this.http.patch(`http://localhost:8081/users/${user.id}`, { Nbr_Posts: newNbrPosts, lastcvName}).subscribe({
+          this.userService.updateUser(user.id, { Nbr_Posts: newNbrPosts, lastcvName }).subscribe({
             next: (res) => {
-              console.log('PATCH response:', res);
               console.log('✅ Nbr_Posts incremented:', newNbrPosts);
               console.log('✅ lastcvName updated:', lastcvName);
             },
@@ -237,7 +215,7 @@ export class TestMonCvComponent {
   }
 
   fetchLearningPath() {
-    this.http.get<any>('http://localhost:8081/learning_path').subscribe({
+    this.parserService.getLearningPath().subscribe({
       next: (data) => {
         this.learningPath = data;
         this.cdr.detectChanges();
@@ -250,7 +228,7 @@ export class TestMonCvComponent {
   }
 
   fetchSkillRecommendations() {
-    this.http.get<any>('http://localhost:8081/skill_recommendations').subscribe({
+    this.parserService.getSkillRecommendations().subscribe({
       next: (data) => {
         this.skillRecommendations = data.recommendations;
         this.cdr.detectChanges();

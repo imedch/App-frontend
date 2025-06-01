@@ -2,6 +2,8 @@ import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+// 👉 Importe ici ton service utilisateur si tu veux sauvegarder le CV côté backend
+import { UserServiceService } from '../service/user-service.service';
 
 @Component({
   selector: 'app-creation-cv',
@@ -12,9 +14,12 @@ export class CreationCVComponent implements OnInit {
   @ViewChild('cvContent') cvContent!: ElementRef;
   cvForm: FormGroup;
   submitted = false;
-  lastGeneratedCV: any; // <-- Ajoute cette propriété
+  lastGeneratedCV: any;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private userService: UserServiceService // <-- Injection du service utilisateur
+  ) {
     this.cvForm = this.fb.group({
       personalInfo: this.fb.group({
         nom: [''],
@@ -42,19 +47,15 @@ export class CreationCVComponent implements OnInit {
   get personalInfo(): FormGroup {
     return this.cvForm.get('personalInfo') as FormGroup;
   }
-
   get formation(): FormArray {
     return this.cvForm.get('formation') as FormArray;
   }
-
   get experience(): FormArray {
     return this.cvForm.get('experience') as FormArray;
   }
-
   get competences(): FormArray {
     return this.cvForm.get('competences') as FormArray;
   }
-
   get langues(): FormArray {
     return this.cvForm.get('langues') as FormArray;
   }
@@ -63,15 +64,12 @@ export class CreationCVComponent implements OnInit {
   getFormationControls(): FormGroup[] {
     return this.formation.controls as FormGroup[];
   }
-
   getExperienceControls(): FormGroup[] {
     return this.experience.controls as FormGroup[];
   }
-
   getCompetencesControls(): FormGroup[] {
     return this.competences.controls as FormGroup[];
   }
-
   getLanguesControls(): FormGroup[] {
     return this.langues.controls as FormGroup[];
   }
@@ -86,7 +84,6 @@ export class CreationCVComponent implements OnInit {
       description: ['']
     }));
   }
-
   addExperience() {
     this.experience.push(this.fb.group({
       poste: [''],
@@ -96,14 +93,12 @@ export class CreationCVComponent implements OnInit {
       description: ['']
     }));
   }
-
   addCompetence() {
     this.competences.push(this.fb.group({
       nom: [''],
       niveau: ['']
     }));
   }
-
   addLangue() {
     this.langues.push(this.fb.group({
       langue: [''],
@@ -115,15 +110,12 @@ export class CreationCVComponent implements OnInit {
   removeFormation(index: number) {
     this.formation.removeAt(index);
   }
-
   removeExperience(index: number) {
     this.experience.removeAt(index);
   }
-
   removeCompetence(index: number) {
     this.competences.removeAt(index);
   }
-
   removeLangue(index: number) {
     this.langues.removeAt(index);
   }
@@ -165,7 +157,13 @@ export class CreationCVComponent implements OnInit {
       window.URL.revokeObjectURL(url);
 
       console.log('CV généré :', cvData);
-      this.lastGeneratedCV = this.cvForm.value; // <-- Ajoute ceci
+      this.lastGeneratedCV = this.cvForm.value;
+
+      // 👉 Exemple d'utilisation du service pour sauvegarder le CV côté backend (optionnel)
+      // this.userService.updateUser(userId, { cvData }).subscribe({
+      //   next: (res) => console.log('CV sauvegardé côté backend', res),
+      //   error: (err) => console.error('Erreur sauvegarde backend', err)
+      // });
 
     } catch (error) {
       console.error('Erreur lors de la génération du CV :', error);

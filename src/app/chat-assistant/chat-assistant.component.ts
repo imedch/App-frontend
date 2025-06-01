@@ -10,7 +10,7 @@ export class ChatAssistantComponent {
   messages: { sender: string; text: string; audioUrl?: string }[] = [];
   userInput: string = '';
   loading: boolean = false;
-  isOpen: boolean = false;  // 👈 affichage de la bulle vs fenetre
+  isOpen: boolean = false;  
 
   @ViewChild('chatBody') chatBodyRef!: ElementRef;
 
