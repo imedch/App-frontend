@@ -1,62 +1,28 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-
-interface PersonalInfo {
-  nom: string;
-  prenom: string;
-  email: string;
-  telephone: string;
-  adresse: string;
-  dateNaissance: string;
-}
-
-interface Formation {
-  diplome: string;
-  etablissement: string;
-  dateDebut: string;
-  dateFin: string;
-  description: string;
-}
-
-interface Experience {
-  poste: string;
-  entreprise: string;
-  dateDebut: string;
-  dateFin: string;
-  description: string;
-}
-
-interface Competence {
-  nom: string;
-  niveau: string;
-}
-
-interface Langue {
-  langue: string;
-  niveau: string;
-}
 
 @Component({
   selector: 'app-creation-cv',
   templateUrl: './creation-cv.component.html',
   styleUrls: ['./creation-cv.component.css']
 })
-export class CreationCVComponent {
+export class CreationCVComponent implements OnInit {
   @ViewChild('cvContent') cvContent!: ElementRef;
   cvForm: FormGroup;
   submitted = false;
+  lastGeneratedCV: any; // <-- Ajoute cette propriété
 
   constructor(private fb: FormBuilder) {
     this.cvForm = this.fb.group({
       personalInfo: this.fb.group({
-        nom: ['', Validators.required],
-        prenom: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        telephone: ['', Validators.required],
-        adresse: ['', Validators.required],
-        dateNaissance: ['', Validators.required]
+        nom: [''],
+        prenom: [''],
+        email: [''],
+        telephone: [''],
+        adresse: [''],
+        dateNaissance: ['']
       }),
       formation: this.fb.array([]),
       experience: this.fb.array([]),
@@ -72,6 +38,7 @@ export class CreationCVComponent {
     this.addLangue();
   }
 
+  // Getters
   get personalInfo(): FormGroup {
     return this.cvForm.get('personalInfo') as FormGroup;
   }
@@ -92,7 +59,7 @@ export class CreationCVComponent {
     return this.cvForm.get('langues') as FormArray;
   }
 
-  // Helper to cast FormArray controls to FormGroup
+  // Controls access
   getFormationControls(): FormGroup[] {
     return this.formation.controls as FormGroup[];
   }
@@ -109,49 +76,42 @@ export class CreationCVComponent {
     return this.langues.controls as FormGroup[];
   }
 
-  // Custom validator for date ranges
-  dateRangeValidator(group: FormGroup) {
-    const dateDebut = group.get('dateDebut')?.value;
-    const dateFin = group.get('dateFin')?.value;
-    return dateDebut && dateFin && dateDebut > dateFin
-      ? { invalidDateRange: true }
-      : null;
-  }
-
+  // Add items
   addFormation() {
     this.formation.push(this.fb.group({
-      diplome: ['', Validators.required],
-      etablissement: ['', Validators.required],
-      dateDebut: ['', Validators.required],
-      dateFin: ['', Validators.required],
+      diplome: [''],
+      etablissement: [''],
+      dateDebut: [''],
+      dateFin: [''],
       description: ['']
-    }, { validators: this.dateRangeValidator }));
+    }));
   }
 
   addExperience() {
     this.experience.push(this.fb.group({
-      poste: ['', Validators.required],
-      entreprise: ['', Validators.required],
-      dateDebut: ['', Validators.required],
-      dateFin: ['', Validators.required],
+      poste: [''],
+      entreprise: [''],
+      dateDebut: [''],
+      dateFin: [''],
       description: ['']
-    }, { validators: this.dateRangeValidator }));
+    }));
   }
 
   addCompetence() {
     this.competences.push(this.fb.group({
-      nom: ['', Validators.required],
-      niveau: ['', Validators.required]
+      nom: [''],
+      niveau: ['']
     }));
   }
 
   addLangue() {
     this.langues.push(this.fb.group({
-      langue: ['', Validators.required],
-      niveau: ['', Validators.required]
+      langue: [''],
+      niveau: ['']
     }));
   }
 
+  // Remove items
   removeFormation(index: number) {
     this.formation.removeAt(index);
   }
@@ -168,49 +128,100 @@ export class CreationCVComponent {
     this.langues.removeAt(index);
   }
 
+  // Generate CV
   async generateCV() {
     try {
       this.submitted = true;
-      if (this.cvForm.valid) {
-        // Generate PDF with multi-page support
-        const content = this.cvContent.nativeElement;
-        const canvas = await html2canvas(content, { scale: 2 });
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgWidth = 210;
-        const pageHeight = 297;
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-        let heightLeft = imgHeight;
-        let position = 0;
 
+      const content = this.cvContent.nativeElement;
+      const canvas = await html2canvas(content, { scale: 2 });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
         pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
-
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-
-        pdf.save('mon-cv.pdf');
-
-        // Download JSON
-        const cvData = this.cvForm.value;
-        const jsonString = JSON.stringify(cvData, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'mon-cv.json';
-        link.click();
-        window.URL.revokeObjectURL(url);
-      } else {
-        console.log('Form is invalid');
       }
+
+      pdf.save('mon-cv.pdf');
+
+      const cvData = this.cvForm.value;
+      const jsonBlob = new Blob([JSON.stringify(cvData, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(jsonBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      //link.download = 'mon-cv.json';
+      //link.click();
+      window.URL.revokeObjectURL(url);
+
+      console.log('CV généré :', cvData);
+      this.lastGeneratedCV = this.cvForm.value; // <-- Ajoute ceci
+
     } catch (error) {
-      console.error('Error generating CV:', error);
+      console.error('Erreur lors de la génération du CV :', error);
       alert('Une erreur est survenue lors de la génération du CV.');
     }
+  }
+
+  // Accès dynamique pour affichage (on ne peut pas utiliser this dans l’objet)
+  get sections() {
+    return [
+      {
+        label: 'Formations',
+        fields: [
+          { name: 'diplome', type: 'text', label: 'Diplôme' },
+          { name: 'etablissement', type: 'text', label: 'Établissement' },
+          { name: 'dateDebut', type: 'date', label: 'Date début' },
+          { name: 'dateFin', type: 'date', label: 'Date fin' },
+          { name: 'description', type: 'textarea', label: 'Description' }
+        ],
+        getControls: () => this.getFormationControls(),
+        add: () => this.addFormation(),
+        remove: (i: number) => this.removeFormation(i)
+      },
+      {
+        label: 'Expériences',
+        fields: [
+          { name: 'poste', type: 'text', label: 'Poste' },
+          { name: 'entreprise', type: 'text', label: 'Entreprise' },
+          { name: 'dateDebut', type: 'date', label: 'Date début' },
+          { name: 'dateFin', type: 'date', label: 'Date fin' },
+          { name: 'description', type: 'textarea', label: 'Description' }
+        ],
+        getControls: () => this.getExperienceControls(),
+        add: () => this.addExperience(),
+        remove: (i: number) => this.removeExperience(i)
+      },
+      {
+        label: 'Compétences',
+        fields: [
+          { name: 'nom', type: 'text', label: 'Nom' },
+          { name: 'niveau', type: 'text', label: 'Niveau' }
+        ],
+        getControls: () => this.getCompetencesControls(),
+        add: () => this.addCompetence(),
+        remove: (i: number) => this.removeCompetence(i)
+      },
+      {
+        label: 'Langues',
+        fields: [
+          { name: 'langue', type: 'text', label: 'Langue' },
+          { name: 'niveau', type: 'text', label: 'Niveau' }
+        ],
+        getControls: () => this.getLanguesControls(),
+        add: () => this.addLangue(),
+        remove: (i: number) => this.removeLangue(i)
+      }
+    ];
   }
 }

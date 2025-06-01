@@ -23,6 +23,7 @@ import { UpdatePasswordComponent } from './update-password/update-password.compo
 import { ManagerProfileComponent } from './manager-profile/manager-profile.component';
 import { ShowCvuserComponent } from './show-cvuser/show-cvuser.component';
 import { MypostComponent } from './mypost/mypost.component';
+import { ChatAssistantComponent } from './chat-assistant/chat-assistant.component';
 
 
 @NgModule({
@@ -45,6 +46,7 @@ import { MypostComponent } from './mypost/mypost.component';
     ManagerProfileComponent,
     ShowCvuserComponent,
     MypostComponent,
+    ChatAssistantComponent,
   ],
   imports: [
     BrowserModule,

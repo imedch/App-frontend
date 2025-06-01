@@ -18,6 +18,10 @@ export class TestMonCvComponent {
   getNoteProgress = 0;
   isGettingNote = false;
   Cv_Note: any = null;
+  recommendations: string[] = []; // <-- Add this property
+  skillRecommendations: any = null;
+  learningPath: any = null;
+  showResults: boolean = false;
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef,private router:Router) {}
   getBadgeClass(score: number): string {
@@ -33,6 +37,14 @@ export class TestMonCvComponent {
 
 
   goToChat(): void {
+    console.log('Go to Chat clicked');
+    console.log('pdfisupdated:', this.pdfisupdated);
+    console.log('canIncrementCV:', localStorage.getItem('canIncrementCV'));
+    if (this.pdfisupdated && localStorage.getItem('canIncrementCV') === 'true') {
+      this.incrementNbrPosts();
+      localStorage.removeItem('canIncrementCV');
+      console.log('Nbr_Posts incremented and flag removed');
+    }
     this.router.navigate(['/chat-bot']);
   }
   // Handle file selection
@@ -77,7 +89,7 @@ export class TestMonCvComponent {
       console.log(`⏳ Progression : ${this.uploadProgress}%`);
       if (this.uploadProgress >= 100) {
         clearInterval(progressInterval);
-        this.incrementNbrPosts();
+        // NE PAS incrémenter ici !
         console.log('✅ Téléchargement terminé !');
         this.displayPDF();
         this.notifyBackendCVUpload();
@@ -144,8 +156,8 @@ export class TestMonCvComponent {
       }
     });
 
-    // Always increment Nbr_Posts, regardless of backend result
-    this.incrementNbrPosts();
+    // SUPPRIMER cette ligne :
+    // this.incrementNbrPosts();
   }
 
   // Send API request to backend
@@ -157,6 +169,8 @@ export class TestMonCvComponent {
   getMyNote(): void {
     this.getNoteProgress = 0;
     this.isGettingNote = true;
+    this.showResults = false; // Masquer avant le chargement
+
     const interval = setInterval(() => {
       if (this.getNoteProgress < 100) {
         this.getNoteProgress += 10;
@@ -165,43 +179,16 @@ export class TestMonCvComponent {
         this.http.get<any>('http://localhost:8081/scores').subscribe({
           next: (scores) => {
             this.customScore = scores.custom;
-            this.pyresScore = scores.pyres;
-            this.isGettingNote = false;
-
-            // Update all user info in the user table with pyresScore
-            const email = localStorage.getItem('email');
-            if (email && this.pyresScore && this.pyresScore.total_score !== undefined) {
-              this.http.get<any[]>(`http://localhost:8081/users?email=${email}`).subscribe({
-                next: (users) => {
-                  if (users.length > 0) {
-                    const user = users[0];
-                    // PATCH all relevant fields
-                    this.http.patch(`http://localhost:8081/users/${user.id}`, {
-                      Cv_Note: this.pyresScore.total_score,
-                      customScore: {
-                        total_score: this.customScore.total_score,
-                        detailed_scores: this.customScore.detailed_scores,
-                        experience_metrics: this.customScore.experience_metrics,
-                        feedback: this.customScore.feedback
-                      }
-                    }).subscribe({
-                      next: (res) => {
-                        console.log('✅ User info updated in backend:', res);
-                      },
-                      error: (err) => {
-                        console.error('❌ Failed to update user info:', err);
-                      }
-                    });
-                  }
-                }
-              });
-            }
+            this.recommendations = scores.recommendations || [];
+            // ...autres traitements...
+            this.showResults = true; // Afficher les résultats après succès
           },
           error: (err) => {
             this.errorMessage = 'Failed to fetch scores.';
             this.customScore = null;
-            this.pyresScore = null;
             this.isGettingNote = false;
+            this.recommendations = [];
+            this.showResults = false; // Ne pas afficher en cas d’erreur
           }
         });
       }
@@ -242,5 +229,40 @@ export class TestMonCvComponent {
         console.error('❌ Failed to fetch user:', err);
       }
     });
+  }
+
+  ngOnInit() {
+    this.fetchLearningPath();
+    this.fetchSkillRecommendations();
+  }
+
+  fetchLearningPath() {
+    this.http.get<any>('http://localhost:8081/learning_path').subscribe({
+      next: (data) => {
+        this.learningPath = data;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Failed to fetch learning path:', err);
+        this.learningPath = null;
+      }
+    });
+  }
+
+  fetchSkillRecommendations() {
+    this.http.get<any>('http://localhost:8081/skill_recommendations').subscribe({
+      next: (data) => {
+        this.skillRecommendations = data.recommendations;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('❌ Failed to fetch skill recommendations:', err);
+        this.skillRecommendations = null;
+      }
+    });
+  }
+
+  getKeys(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
   }
 }
