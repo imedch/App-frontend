@@ -1,23 +1,23 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class JiraServiceService {
-  private issuesUrl = 'http://localhost:8081/issues';
+  private skillsSubject = new BehaviorSubject<string[]>([]);
+  skills$ = this.skillsSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer toutes les offres Jira
+  // Appel API pour récupérer les issues
   getIssues(): Observable<any[]> {
-    return this.http.get<any[]>(this.issuesUrl);
+    return this.http.get<any[]>('http://localhost:8081/issues');
   }
 
-  // Exemple : soumettre une candidature (à adapter selon ton backend)
-  submitApplication(data: any): Observable<any> {
-    // Ici, tu pourrais POST sur une URL dédiée si tu en as une
-    return this.http.post<any>('http://localhost:8081/applications', data);
+  // Getter pour récupérer les skills sélectionnées (optionnel)
+  getSkills(): Observable<string[]> {
+    return this.skills$;
   }
 }

@@ -152,7 +152,7 @@ export class TestMonCvComponent implements OnInit {
   }
 
   getMyNote(): void {
-    console.log('✅ get my note called');
+    //console.log('✅ get my note called');
     this.getNoteProgress = 0;
     this.isGettingNote = true;
     this.showResults = false;
@@ -182,6 +182,8 @@ export class TestMonCvComponent implements OnInit {
                     const user = users[0];
                     // Récupère le nom du CV actuel si disponible
                     const lastcvName = this.selectedFile ? this.selectedFile.name : user.lastcvName;
+                    // Récupère le nom du post depuis le localStorage
+                    const lastPosts = localStorage.getItem('postName') || user.lastPosts;
                     this.http.patch(`http://localhost:8081/users/${user.id}`, {
                       Cv_Note: this.pyresScore ? this.pyresScore.total_score : null,
                       customScore: {
@@ -190,13 +192,14 @@ export class TestMonCvComponent implements OnInit {
                         experience_metrics: this.customScore.experience_metrics,
                         feedback: this.customScore.feedback
                       },
-                      lastcvName // Met à jour le nom du CV
+                      lastcvName, // Met à jour le nom du CV
+                      lastPosts // Met à jour le nom du post
                     }).subscribe({
                       next: () => {
-                        console.log('✅ User scores and CV name updated in backend');
+                        console.log('✅ User scores, CV name, and endtwoPosts updated in backend');
                       },
                       error: (err) => {
-                        console.error('❌ Failed to update user scores or CV name:', err);
+                        console.error('❌ Failed to update user scores, CV name, or endtwoPosts:', err);
                       }
                     });
                   }

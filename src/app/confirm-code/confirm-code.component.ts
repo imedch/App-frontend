@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserServiceService } from '../service/user-service.service';
 
@@ -6,9 +6,10 @@ import { UserServiceService } from '../service/user-service.service';
   selector: 'app-confirm-code',
   templateUrl: './confirm-code.component.html'
 })
-export class ConfirmCodeComponent {
+export class ConfirmCodeComponent implements OnInit {
   email: string = '';
   code: string = '';
+  generatedCode: string = ''; // <-- Ajouté
   errorMessage: string | null = null;
   resendSuccessMessage: string | null = null;
   loading: boolean = false;
@@ -24,7 +25,6 @@ export class ConfirmCodeComponent {
       this.email = params['email'] || '';
       this.mode = params['mode'] || '';
       if (!this.mode) {
-        // Déduire le mode selon l'URL courante si non fourni
         const url = this.router.url;
         if (url.includes('forgot-password')) {
           this.mode = 'forget';
@@ -34,6 +34,12 @@ export class ConfirmCodeComponent {
       }
       console.log('Mode actuel dans confirm-code:', this.mode);
     });
+  }
+
+  ngOnInit() {
+    // Générer et stocker le code de confirmation aléatoire
+    this.generatedCode = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log('Code de confirmation généré :', this.generatedCode);
   }
 
   onSubmit() {
@@ -46,10 +52,9 @@ export class ConfirmCodeComponent {
     }
 
     this.loading = true;
-    console.log('Mode actuel dans confirm-code:', this.mode);
 
-    // Vérification statique du code
-    if (this.code === '123456') {
+    // Vérification dynamique du code
+    if (this.code === this.generatedCode) {
       if (this.mode === 'signup') {
         const userData = JSON.parse(localStorage.getItem('pendingUser') || '{}');
         if (userData && userData.username && userData.email && userData.password) {
@@ -69,10 +74,8 @@ export class ConfirmCodeComponent {
           this.router.navigate(['/log-in']);
         }
       } else if (this.mode === 'forget') {
-        // Récupère l'utilisateur depuis le localStorage pour la suite
         const forgetUser = JSON.parse(localStorage.getItem('pendingForgetUser') || '{}');
         this.loading = false;
-        // Passe l'id et l'email pour la page de mise à jour du mot de passe
         this.router.navigate(['/update-password'], { queryParams: { email: this.email, id: forgetUser.id } });
       }
     } else {

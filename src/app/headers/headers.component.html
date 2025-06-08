@@ -14,8 +14,7 @@
     <!-- Manager view: only show Users Posted, View Profile, and Log out -->
     <ng-container *ngIf="isLoggedIn() && isManager(); else nonManagerNav">
       <div class="profile-dropdown">
-        <button class="nav-button" (click)="showMenu = !showMenu" type="button">
-          Welcome : {{ getUsername() }}
+        <button class="nav-button" (click)="showMenu = !showMenu" type="button">{{ getUsername() }}
         </button>
         <ul class="dropdown-list" *ngIf="showMenu">
           <li>
@@ -33,8 +32,7 @@
     <!-- Non-manager navigation -->
     <ng-template #nonManagerNav>
       <div class="profile-dropdown" *ngIf="isLoggedIn()">
-        <button class="nav-button" (click)="showMenu = !showMenu" type="button">
-          Welcome : {{ getUsername() }}
+        <button class="nav-button" (click)="showMenu = !showMenu" type="button">log in : {{ getUsername() }}
         </button>
         <ul class="dropdown-list" *ngIf="showMenu">
           <li><a routerLink="/profile" (click)="showMenu = false">View Profile</a></li>

@@ -11,7 +11,7 @@ export class UserProfileComponent implements OnInit {
   email: string | null = '';
   id: number | null = null;
   Nbr_Posts: number | null = null;
-  endtwoPosts: string | null = null;
+  lastPosts: string | null = null;
   CV_Note: number | null = null;
   showPosts = false;
   lastTwoPosts: string[] = [];
@@ -38,7 +38,7 @@ export class UserProfileComponent implements OnInit {
             this.id = user.id;
             this.username = user.username;
             this.Nbr_Posts = user.Nbr_Posts || 0;
-            this.endtwoPosts = user.endtwoPosts || null;
+            this.lastPosts = user.lastPosts || null;
             this.customScore = user.customScore || { total_score: 0 };
             this.lastcvName = user.lastcvName || '';
           }
@@ -119,7 +119,7 @@ reloadUserData() {
           this.id = user.id;
           this.username = user.username;
           this.Nbr_Posts = user.Nbr_Posts || 0;
-          this.endtwoPosts = user.endtwoPosts || null;
+          this.lastPosts = user.lastPosts || null;
           this.customScore = user.customScore || { total_score: 0 };
           this.lastcvName = user.lastcvName || '';
         }
