@@ -38,15 +38,16 @@ export class ForgotPasswordComponent {
     this.errorMessage = null;
     const email = this.forgotPasswordForm.value.email;
 
-    // Utilise le UserService pour chercher l'utilisateur par email
     this.userService.getUserByEmail(email).subscribe({
       next: (users) => {
         if (users.length > 0) {
           const user = users[0];
-          // Générer un mot de passe aléatoire de 6 caractères
-          const randomPassword = Math.random().toString(36).slice(-6);
-          // Rediriger vers la page de mise à jour du mot de passe avec l'email en paramètre
-          this.router.navigate(['/update-password'], { queryParams: { email, id: user.id, code: randomPassword } });
+          // Stocker l'info utilisateur dans le localStorage pour la suite du process
+          localStorage.setItem('pendingForgetUser', JSON.stringify({ id: user.id, email: user.email }));
+          // Générer un code de confirmation statique ou aléatoire
+          const randomCode = '123456'; // ou Math.random().toString(36).slice(-6);
+          // Rediriger vers la page de confirmation de code avec le mode forget
+          this.router.navigate(['/confirm-code'], { queryParams: { email, mode: 'forget', code: randomCode } });
         } else {
           this.errorMessage = 'Email address not found.';
           this.successMessage = null;

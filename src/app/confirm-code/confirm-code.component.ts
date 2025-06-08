@@ -22,7 +22,17 @@ export class ConfirmCodeComponent {
   ) {
     this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
-      this.mode = params['mode'] || 'signup';
+      this.mode = params['mode'] || '';
+      if (!this.mode) {
+        // Déduire le mode selon l'URL courante si non fourni
+        const url = this.router.url;
+        if (url.includes('forgot-password')) {
+          this.mode = 'forget';
+        } else if (url.includes('signup')) {
+          this.mode = 'signup';
+        }
+      }
+      console.log('Mode actuel dans confirm-code:', this.mode);
     });
   }
 
@@ -36,11 +46,12 @@ export class ConfirmCodeComponent {
     }
 
     this.loading = true;
+    console.log('Mode actuel dans confirm-code:', this.mode);
 
+    // Vérification statique du code
     if (this.code === '123456') {
       if (this.mode === 'signup') {
         const userData = JSON.parse(localStorage.getItem('pendingUser') || '{}');
-
         if (userData && userData.username && userData.email && userData.password) {
           this.userService.createUser(userData).subscribe({
             next: () => {
@@ -58,8 +69,11 @@ export class ConfirmCodeComponent {
           this.router.navigate(['/log-in']);
         }
       } else if (this.mode === 'forget') {
+        // Récupère l'utilisateur depuis le localStorage pour la suite
+        const forgetUser = JSON.parse(localStorage.getItem('pendingForgetUser') || '{}');
         this.loading = false;
-        this.router.navigate(['/update-password'], { queryParams: { email: this.email } });
+        // Passe l'id et l'email pour la page de mise à jour du mot de passe
+        this.router.navigate(['/update-password'], { queryParams: { email: this.email, id: forgetUser.id } });
       }
     } else {
       this.loading = false;

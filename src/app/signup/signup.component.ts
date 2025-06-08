@@ -47,6 +47,7 @@ export class SignupComponent {
     this.errorMessage = null;
     const { username, email, password } = this.signupForm.value;
 
+    // Vérifier unicité email puis username avant de poursuivre
     this.userService.getUserByEmail(email).subscribe({
       next: (usersByEmail) => {
         if (usersByEmail.length > 0) {
@@ -61,8 +62,22 @@ export class SignupComponent {
               return;
             }
 
-            // Save data in localStorage and redirect to confirmation
-            localStorage.setItem('pendingUser', JSON.stringify({ username, email, password }));
+            // Stocker les infos en localStorage pour la confirmation
+            localStorage.setItem('pendingUser', JSON.stringify({
+              username,
+              email,
+              password,
+              Nbr_Posts: null,
+              endtwoPosts: null,
+              lastcvName: null,
+              customScore: null,
+              total_score: null,
+              detailed_scores:null,
+              experience_metrics: null,
+              feedback : null
+
+            }));
+            // Rediriger vers la page de confirmation de code avec le mode signup
             this.router.navigate(['/confirm-code'], { queryParams: { email, mode: 'signup' } });
           },
           error: () => {

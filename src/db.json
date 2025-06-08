@@ -1,30 +1,11 @@
 {
-  "jobs": [
-    {
-      "id": "1",
-      "title": "Développeur Frontend",
-      "company": "TechCorp",
-      "location": "Tunis",
-      "description": "Développement d'interfaces utilisateur modernes.",
-      "datePosted": "2023-10-01"
-    },
-    {
-      "id": "2",
-      "title": "Ingénieur Backend",
-      "company": "SoftSolutions",
-      "location": "Sousse",
-      "description": "Conception et maintenance des API.",
-      "datePosted": "2023-10-02"
-    }
-  ],
   "users": [
     {
       "username": "user",
-      "password": "user123",
+      "password": "222222",
       "email": "user@gmail.com",
       "id": "1192",
       "role": "user",
-      "CV_Note": 2,
       "Nbr_Posts": 12,
       "endtwoPosts": "post Ingénieur Backend, post Développeur Frontend",
       "lastcvName": "Test Pratique Angular.pdf",
@@ -51,7 +32,7 @@
     {
       "id": "495f",
       "username": "user1",
-      "password": "0000001",
+      "password": "000000",
       "email": "user1@gmail.com",
       "role": "user",
       "CV_Note": 10,
@@ -63,7 +44,7 @@
       "id": "0561",
       "username": "imed",
       "email": "imed@gmail.com",
-      "password": "imedch",
+      "password": "000000",
       "role": "user",
       "Nbr_Posts": 66,
       "endtwoPosts": "post Ingénieur HLL, post Développeur LWLW",
@@ -85,8 +66,7 @@
           "Experience: Satisfactory",
           "Education: Satisfactory"
         ]
-      },
-      "Cv_Note": 30
+      }
     },
     {
       "id": "ef58",
@@ -108,6 +88,36 @@
       "Nbr_Posts": 5,
       "endtwoPosts": "post Ingénieur HLL, post Développeur LWLW",
       "lastcvName": null
+    },
+    {
+      "id": "26fa",
+      "username": "imedchakhari",
+      "email": "imed@gmail.com",
+      "password": "000000"
+    },
+    {
+      "id": "67f3",
+      "username": "imedcha",
+      "email": "imedcha@gmail.com",
+      "password": "456789"
+    },
+    {
+      "id": "0a6f",
+      "username": "imedchaa",
+      "email": "imedchaa@gmail.com",
+      "password": "123456"
+    },
+    {
+      "id": "2615",
+      "username": "oussaid",
+      "email": "oussaid@gmail.com",
+      "password": "123456"
+    },
+    {
+      "id": "4a4c",
+      "username": "imedchakhari1",
+      "email": "imedchakhari@gmail.com",
+      "password": "000000"
     }
   ],
   "managers": [

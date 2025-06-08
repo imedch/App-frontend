@@ -152,6 +152,7 @@ export class TestMonCvComponent implements OnInit {
   }
 
   getMyNote(): void {
+    console.log('✅ get my note called');
     this.getNoteProgress = 0;
     this.isGettingNote = true;
     this.showResults = false;
@@ -165,6 +166,48 @@ export class TestMonCvComponent implements OnInit {
             this.customScore = scores.custom;
             this.recommendations = scores.recommendations || [];
             this.showResults = true;
+
+            // Ajout de la mise à jour du score utilisateur
+            const email = localStorage.getItem('email');
+            if (
+              email &&
+              this.customScore &&
+              this.customScore.total_score !== undefined &&
+              this.customScore.detailed_scores &&
+              this.customScore.experience_metrics
+            ) {
+              this.http.get<any[]>(`http://localhost:8081/users?email=${email}`).subscribe({
+                next: (users) => {
+                  if (users.length > 0) {
+                    const user = users[0];
+                    // Récupère le nom du CV actuel si disponible
+                    const lastcvName = this.selectedFile ? this.selectedFile.name : user.lastcvName;
+                    this.http.patch(`http://localhost:8081/users/${user.id}`, {
+                      Cv_Note: this.pyresScore ? this.pyresScore.total_score : null,
+                      customScore: {
+                        total_score: this.customScore.total_score,
+                        detailed_scores: this.customScore.detailed_scores,
+                        experience_metrics: this.customScore.experience_metrics,
+                        feedback: this.customScore.feedback
+                      },
+                      lastcvName // Met à jour le nom du CV
+                    }).subscribe({
+                      next: () => {
+                        console.log('✅ User scores and CV name updated in backend');
+                      },
+                      error: (err) => {
+                        console.error('❌ Failed to update user scores or CV name:', err);
+                      }
+                    });
+                  }
+                },
+                error: (err) => {
+                  console.error('❌ Failed to fetch user for score update:', err);
+                }
+              });
+            } else {
+              console.warn('customScore or its properties are null:', this.customScore);
+            }
           },
           error: (err) => {
             this.errorMessage = 'Failed to fetch scores.';
