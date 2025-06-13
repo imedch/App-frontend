@@ -6,8 +6,8 @@
       "email": "test@gmail.com",
       "password": "test12",
       "Nbr_Posts": null,
-      "lastPosts": "Software Engineer",
-      "lastcvName": "mon-cv (2).pdf",
+      "lastPosts": "QA Engineer",
+      "lastcvName": "mon-cv (7).pdf",
       "customScore": {
         "total_score": 55.48,
         "detailed_scores": {
@@ -44,6 +44,19 @@
       "detailed_scores": null,
       "experience_metrics": null,
       "feedback": null
+    },
+    {
+      "id": "ebb8",
+      "username": "nadera",
+      "email": "nader@gmail.com",
+      "password": "123456",
+      "endPost": null,
+      "lastcvName": null,
+      "customScore": null,
+      "total_score": null,
+      "detailed_scores": null,
+      "experience_metrics": null,
+      "feedback": null
     }
   ],
   "managers": [
@@ -51,7 +64,7 @@
       "id": "616d",
       "role": "manager",
       "username": "nader",
-      "password": "plu5rw5t",
+      "password": "000000",
       "email": "nader@actia-engineering.tn"
     },
     {
@@ -59,6 +72,13 @@
       "username": "imed",
       "password": "sffede4h",
       "email": "imed@actia-engineering.tn",
+      "role": "manager"
+    },
+    {
+      "id": "f800",
+      "username": "nadera",
+      "password": "123456",
+      "email": "nadera@actia-engineering.tn",
       "role": "manager"
     }
   ],

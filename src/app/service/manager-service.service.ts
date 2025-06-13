@@ -29,4 +29,10 @@ export class ManagerServiceService {
   deleteManager(id: string): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
+  getManagerByUsername(username: string): Observable<any[]> {
+  return this.http.get<any[]>(`http://localhost:8081/managers?username=${username}`);
+}
+getUserByUsername(username: string): Observable<any[]> {
+  return this.http.get<any[]>(`http://localhost:8081/users?username=${username}`);
+}
 }

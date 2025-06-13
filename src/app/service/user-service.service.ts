@@ -64,4 +64,7 @@ export class UserServiceService {
     // À adapter selon ton backend, ici exemple avec /resend-code
     return this.http.post<any>('http://localhost:8081/resend-code', { email });
   }
+  getManagerByUsername(username: string): Observable<any[]> {
+  return this.http.get<any[]>(`http://localhost:8081/managers?username=${username}`);
+}
 }
