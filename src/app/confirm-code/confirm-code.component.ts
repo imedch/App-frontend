@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserServiceService } from '../service/user-service.service';
 
@@ -6,7 +6,7 @@ import { UserServiceService } from '../service/user-service.service';
   selector: 'app-confirm-code',
   templateUrl: './confirm-code.component.html'
 })
-export class ConfirmCodeComponent {
+export class ConfirmCodeComponent implements OnInit {
   email: string = '';
   code: string = '';
   errorMessage: string | null = null;
@@ -22,11 +22,24 @@ export class ConfirmCodeComponent {
   ) {
     this.route.queryParams.subscribe(params => {
       this.email = params['email'] || '';
-      this.mode = params['mode'] || 'signup';
+      this.mode = params['mode'] || '';
+      if (!this.mode) {
+        const url = this.router.url;
+        if (url.includes('forgot-password')) {
+          this.mode = 'forget';
+        } else if (url.includes('signup')) {
+          this.mode = 'signup';
+        }
+      }
+      console.log('Mode actuel dans confirm-code:', this.mode);
     });
   }
 
-  onSubmit() {
+  ngOnInit(): void {
+    // Le code est désormais généré et envoyé depuis le backend, plus besoin de générer ici
+  }
+
+  onSubmit(): void {
     this.errorMessage = null;
     this.codeInvalid = false;
 
@@ -37,37 +50,42 @@ export class ConfirmCodeComponent {
 
     this.loading = true;
 
-    if (this.code === '123456') {
-      if (this.mode === 'signup') {
-        const userData = JSON.parse(localStorage.getItem('pendingUser') || '{}');
-
-        if (userData && userData.username && userData.email && userData.password) {
-          this.userService.createUser(userData).subscribe({
-            next: () => {
-              localStorage.removeItem('pendingUser');
-              this.loading = false;
-              this.router.navigate(['/log-in']);
-            },
-            error: () => {
-              this.loading = false;
-              this.errorMessage = 'Signup failed. Please try again.';
-            }
-          });
-        } else {
+    this.userService.verifyCode({ email: this.email, code: this.code }).subscribe({
+      next: () => {
+        if (this.mode === 'signup') {
+          const userData = JSON.parse(localStorage.getItem('pendingUser') || '{}');
+          if (userData && userData.username && userData.email && userData.password && userData.role) {
+            this.userService.createUser(userData).subscribe({
+              next: () => {
+                localStorage.removeItem('pendingUser');
+                this.loading = false;
+                this.router.navigate(['/log-in']);
+              },
+              error: () => {
+                this.loading = false;
+                this.errorMessage = 'Signup failed. Please try again.';
+              }
+            });
+          } else {
+            this.loading = false;
+            this.router.navigate(['/log-in']);
+          }
+        } else if (this.mode === 'forget') {
+          const forgetUser = JSON.parse(localStorage.getItem('pendingForgetUser') || '{}');
           this.loading = false;
-          this.router.navigate(['/log-in']);
+          this.router.navigate(['/update-password'], {
+            queryParams: { email: this.email, id: forgetUser.id }
+          });
         }
-      } else if (this.mode === 'forget') {
+      },
+      error: () => {
         this.loading = false;
-        this.router.navigate(['/update-password'], { queryParams: { email: this.email } });
+        this.errorMessage = 'Code de confirmation invalide. Veuillez réessayer.';
       }
-    } else {
-      this.loading = false;
-      this.errorMessage = 'Code de confirmation invalide. Veuillez réessayer.';
-    }
+    });
   }
 
-  resendCode(event: Event) {
+  resendCode(event: Event): void {
     event.preventDefault();
     this.resendSuccessMessage = null;
     this.errorMessage = null;
@@ -82,7 +100,7 @@ export class ConfirmCodeComponent {
     });
   }
 
-  updatePassword(user: any, newPassword: string) {
+  updatePassword(user: any, newPassword: string): void {
     this.userService.updateUser(user.id, { password: newPassword }).subscribe({
       next: () => {
         this.router.navigate(['/log-in']);

@@ -1,17 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router'; // <-- Add this import
-
-interface JiraIssue {
-  key: string;
-  fields: {
-    summary: string;
-    description: string;
-    customfield_10056?: string; // responsibilities
-    customfield_10057?: string; // skills
-    customfield_10055?: string; // description
-  };
-}
+import { Router } from '@angular/router';
+import { PostService } from '../service/post-service.service';
+import { ChatInterviewServiceService } from '../service/chat-interview-service.service';
+import { Post } from '../models/post.model'; // Use shared model
 
 @Component({
   selector: 'app-nouveauter',
@@ -19,38 +10,45 @@ interface JiraIssue {
   styleUrls: ['./nouveauter.component.css']
 })
 export class NouveauterComponent implements OnInit {
-  issues: JiraIssue[] = [];
-  skillsList: string[] = [];
-  // Update the URL to your running json-server endpoint
-  private apiUrl = 'http://localhost:8081/issues';
+  posts: Post[] = [];
+  filteredPosts: Post[] = [];
 
-  constructor(private http: HttpClient, private router: Router) {} 
+  constructor(
+    private postService: PostService,
+    private chatInterviewService: ChatInterviewServiceService,
+    private router: Router
+  ) {}
 
-  ngOnInit() {
-    this.http.get<JiraIssue[]>(this.apiUrl).subscribe(
-      data => {
-        this.issues = data;
-        console.log('Issues:', this.issues); // Check what you get
+  ngOnInit(): void {
+    this.postService.getPosts().subscribe({
+      next: (data: Post[]) => {
+        this.posts = data;
+
+        // ✅ Only include posts with status 'Opened' or 'InProgress'
+        this.filteredPosts = this.posts.filter(
+          post => post.status === 'Opened' || post.status === 'InProgress'
+        );
+
+        console.log('Filtered Posts:', this.filteredPosts);
       },
-      error => {
-        console.error('Error fetching issues from json-server:', error);
+      error: (err) => {
+        console.error('Failed to load posts:', err);
       }
-    );
+    });
   }
 
-  goToTestMonCV() {
+  goToTestMonCV(post: Post): void {
+    // Optional: use a real field like post.skills instead of content
+    const skills = post.content?.split(',').map(s => s.trim()) || [];
+
+    localStorage.setItem('postSkills', JSON.stringify(skills));
+    localStorage.setItem('postName', post.title);
+
+    this.chatInterviewService.setSkills(skills);
     this.router.navigate(['/test-mon-cv']);
   }
 
-  onSubmit() {
-    // ... logique de soumission ...
+  onSubmit(): void {
     localStorage.setItem('canIncrementCV', 'true');
   }
 }
-
-
-
-
-
-
-

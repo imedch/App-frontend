@@ -21,8 +21,8 @@
     </div>
   </div>
 
-  <div class="chatbot-input">
-    <input [(ngModel)]="userInput" (keydown.enter)="sendMessage()" placeholder="Écrivez ici..." />
-    <button (click)="sendMessage()">Envoyer</button>
+  <div class="chatbot-input d-flex">
+    <input [(ngModel)]="userInput" (keydown.enter)="sendMessage()" placeholder="Écrivez ici..." class="form-control me-2" />
+    <button (click)="sendMessage()" class="btn btn-primary">send</button>
   </div>
 </div>

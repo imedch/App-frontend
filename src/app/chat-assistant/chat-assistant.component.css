@@ -79,7 +79,7 @@
 .chatbot-input input {
   flex: 1;
   padding: 0.5rem 1rem;
-  border-radius: 20px;
+  border-radius: 10px;
   border: 1px solid #ccc;
 }
 
@@ -89,7 +89,7 @@
   color: white;
   border-radius: 20px;
   padding: 0 1rem;
-  margin-left: 0.5rem;
+  margin-left: 0.3rem;
 }
 
 /* Loading dots */
