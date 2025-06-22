@@ -92,7 +92,7 @@ const routes: Routes = [
     path: 'profile/:id', 
     component: UserProfileComponent, 
     canActivate: [AuthGuard],
-    data: { roles: ['CANDIDATE'] }
+    data: { roles: ['CANDIDATE','SYSADMIN'] }
   },
   { 
     path: 'manager-profile/:id',
