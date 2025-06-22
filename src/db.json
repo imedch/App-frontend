@@ -51,7 +51,7 @@
     {
       "id": "495f",
       "username": "user1",
-      "password": "0000001",
+      "password": "000000",
       "email": "user1@gmail.com",
       "role": "user",
       "CV_Note": 10,
@@ -65,7 +65,7 @@
       "email": "imed@gmail.com",
       "password": "imedch",
       "role": "user",
-      "Nbr_Posts": 66,
+      "Nbr_Posts": 36,
       "endtwoPosts": "post Ingénieur HLL, post Développeur LWLW",
       "lastcvName": "Imed_chakhari2021.pdf",
       "customScore": {
@@ -113,17 +113,9 @@
   "managers": [
     {
       "id": "616d",
-      "role": "manager",
       "username": "nader",
       "password": "plu5rw5t",
       "email": "nader@actia-engineering.tn"
-    },
-    {
-      "id": "9bd1",
-      "username": "imed",
-      "password": "sffede4h",
-      "email": "imed@actia-engineering.tn",
-      "role": "manager"
     }
   ],
   "extraction_methods": {

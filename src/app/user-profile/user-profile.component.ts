@@ -102,14 +102,4 @@ export class UserProfileComponent implements OnInit {
       }
     });
   }
-  getBadgeClass(score: number): string {
-  if (score < 50) {
-    return 'bg-danger text-light'; // Rouge
-  } else if (score < 70) {
-    return 'bg-warning text-dark'; // Jaune
-  } else {
-    return 'bg-success text-light'; // Vert
-  }
-}
-
 }

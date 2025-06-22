@@ -11,13 +11,18 @@
           </div>
           <div class="text-center text-md-start">
             <h2 class="fw-bold text-primary mb-0">Welcome, {{ username }}</h2>
+            <p class="text-muted">Profile Overview</p>
             <p class="mb-0"><strong>Your Email:</strong> {{ email }}</p>
             <p class="mb-0"><strong>CV submissions:</strong> {{ Nbr_Posts }} times</p>
             <p class="mb-0"><strong>Last CV Name:</strong> {{ lastcvName }}</p>
             <p class="mb-0">
               <strong>CV Score:</strong>
               <span class="ms-2 px-2 py-1 rounded"
-                    [ngClass]="getBadgeClass(customScore?.total_score ?? 0)"
+                    [ngClass]="{
+                      'bg-danger text-white': (customScore?.total_score ?? 0) < 45,
+                      'bg-success text-white': (customScore?.total_score ?? 0) >= 45 && (customScore?.total_score ?? 0) <= 75,
+                      'bg-violet text-white': (customScore?.total_score ?? 0) > 75
+                    }"
                     style="font-weight: 600;">
                 {{ customScore?.total_score }} %
               </span>
@@ -28,19 +33,13 @@
         <!-- Tabs -->
         <ul class="nav nav-tabs mb-4">
           <li class="nav-item">
-            <a class="nav-link" [class.active]="showDetails.detailedScores" (click)="showTab('detailedScores')">
-              Detailed Scores
-            </a>
+            <a class="nav-link" [class.active]="showDetails.detailedScores" (click)="showTab('detailedScores')">Detailed Scores</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" [class.active]="showDetails.experienceMetrics" (click)="showTab('experienceMetrics')">
-              Experience Metrics
-            </a>
+            <a class="nav-link" [class.active]="showDetails.experienceMetrics" (click)="showTab('experienceMetrics')">Experience Metrics</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" [class.active]="showDetails.feedback" (click)="showTab('feedback')">
-              Feedback
-            </a>
+            <a class="nav-link" [class.active]="showDetails.feedback" (click)="showTab('feedback')">Feedback</a>
           </li>
         </ul>
 
@@ -48,27 +47,9 @@
         <div *ngIf="showDetails.detailedScores">
           <h5 class="text-secondary">Detailed Scores</h5>
           <ul>
-            <li>
-              Skills:
-              <span class="ms-2 px-2 py-1 rounded"
-                    [ngClass]="getBadgeClass(customScore?.detailed_scores?.skills)">
-                {{ customScore?.detailed_scores?.skills }}
-              </span>
-            </li>
-            <li>
-              Experience:
-              <span class="ms-2 px-2 py-1 rounded"
-                    [ngClass]="getBadgeClass(customScore?.detailed_scores?.experience)">
-                {{ customScore?.detailed_scores?.experience }}
-              </span>
-            </li>
-            <li>
-              Education:
-              <span class="ms-2 px-2 py-1 rounded"
-                    [ngClass]="getBadgeClass(customScore?.detailed_scores?.education)">
-                {{ customScore?.detailed_scores?.education }}
-              </span>
-            </li>
+            <li>Skills: {{ customScore?.detailed_scores?.skills }}</li>
+            <li>Experience: {{ customScore?.detailed_scores?.experience }}</li>
+            <li>Education: {{ customScore?.detailed_scores?.education }}</li>
           </ul>
         </div>
 
@@ -87,7 +68,6 @@
           </ul>
         </div>
 
-        <!-- Delete Profile Button -->
         <button class="btn btn-outline-danger w-100 mt-4" (click)="deleteMyProfile()">
           <i class="bi bi-trash"></i> Delete my profile
         </button>
@@ -96,9 +76,8 @@
   </div>
 </div>
 
-<!-- Custom violet badge style -->
 <style>
-  .bg-violet {
-    background-color: #7c3aed !important;
-  }
+.bg-violet {
+  background-color: #7c3aed !important;
+}
 </style>

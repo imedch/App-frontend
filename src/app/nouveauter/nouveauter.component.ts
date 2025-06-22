@@ -24,7 +24,7 @@ export class NouveauterComponent implements OnInit {
   // Update the URL to your running json-server endpoint
   private apiUrl = 'http://localhost:8081/issues';
 
-  constructor(private http: HttpClient, private router: Router) {} 
+  constructor(private http: HttpClient, private router: Router) {} // <-- Inject Router
 
   ngOnInit() {
     this.http.get<JiraIssue[]>(this.apiUrl).subscribe(
@@ -40,11 +40,6 @@ export class NouveauterComponent implements OnInit {
 
   goToTestMonCV() {
     this.router.navigate(['/test-mon-cv']);
-  }
-
-  onSubmit() {
-    // ... logique de soumission ...
-    localStorage.setItem('canIncrementCV', 'true');
   }
 }
 

@@ -2,9 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { UserServiceService } from '../service/user-service.service';
-import { ManagerServiceService } from '../service/manager-service.service';
+import { UserService } from '../services/user.service';
 
 @Component({
   selector: 'app-log-in',
@@ -15,14 +13,13 @@ export class LogInComponent implements OnInit {
   loginForm: FormGroup;
   errorMessage: string | null = null;
   loading: boolean = false;
-  showPassword: boolean = false;
+  showPassword: boolean = false; // 👁️ Used for toggle
 
   constructor(
     private fb: FormBuilder,
     private http: HttpClient,
     private router: Router,
-    private userService: UserServiceService,
-    private managerService: ManagerServiceService
+    private userService: UserService
   ) {
     this.loginForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -32,20 +29,25 @@ export class LogInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // ✅ Si l'utilisateur est déjà connecté, rediriger vers /home
+    // ✅ Redirect to home if already logged in
     const token = localStorage.getItem('token');
     if (token) {
       this.router.navigate(['/home']);
     }
   }
 
-  // Getters pratiques pour le template
+  // Getters for template access
   get username() {
     return this.loginForm.get('username');
   }
 
   get password() {
     return this.loginForm.get('password');
+  }
+
+  // 🔁 Toggle password visibility
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
@@ -59,14 +61,18 @@ export class LogInComponent implements OnInit {
     this.loading = true;
 
     const { username, password, rememberMe } = this.loginForm.value;
+    const isEmail = username.includes('@');
+    const credentials = isEmail ? { email: username, password } : { username, password };
 
-    console.log('🔐 Tentative de connexion :', { username, rememberMe });
+    console.log('🔐 Tentative de connexion :', credentials);
 
-    this.authenticateUser({ username, password }).subscribe({
+    this.userService.searchUser(credentials).subscribe({
       next: (response) => {
         console.log('✅ Connexion réussie :', response);
         this.loading = false;
+
         localStorage.clear();
+
         // ✅ Stockage du token, rôle, username et email
         localStorage.setItem('token', response.token);
         localStorage.setItem('userRole', response.role);
@@ -76,11 +82,9 @@ export class LogInComponent implements OnInit {
         localStorage.setItem('cvNote', response.CV_Note || '0'); // <-- always from backend
         
         if (rememberMe) {
-          // Exemple : stocker dans localStorage pour persistance (déjà fait ci-dessus)
           console.log('📝 Session persistante activée');
         }
 
-        // Rediriger vers la page d'accueil
         this.router.navigate(['/home']);
       },
       error: (error) => {

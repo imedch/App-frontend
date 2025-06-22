@@ -11,14 +11,11 @@ import { ChatBotComponent } from './chat-bot/chat-bot.component';
 import { LogInComponent } from './log-in/log-in.component';
 import { SignupComponent } from './signup/signup.component';
 import { ForgotPasswordComponent } from './forgot-password/forgot-password.component';
-import { AuthGuard } from './auth.guard';
+import { AuthGuard } from './auth.guard'; // 👈 Ajout ici
 import { GestionManagersComponent } from './gestion-managers/gestion-managers.component';
+import { ConfirmCodeComponent } from './confirm-code/confirm-code.component';
 import { UserProfileComponent } from './user-profile/user-profile.component';
 import { UpdatePasswordComponent } from './update-password/update-password.component';
-import { ManagerProfileComponent } from './manager-profile/manager-profile.component';
-import { ShowCvuserComponent } from './show-cvuser/show-cvuser.component';
-import { MypostComponent } from './mypost/mypost.component';
-import { ConfirmCodeComponent } from './confirm-code/confirm-code.component';
 
 const routes: Routes = [
   { path: '', redirectTo: '/log-in', pathMatch: 'full' },
@@ -33,12 +30,9 @@ const routes: Routes = [
   { path: 'signup', component: SignupComponent },
   { path: 'forgot-password', component: ForgotPasswordComponent },
   { path: 'update-password', component: UpdatePasswordComponent },
-  {path : 'confirm-code', component: ConfirmCodeComponent}, 
   { path: 'not-found', component: NotFoundComponent },
+  {path : 'confirm-code', component: ConfirmCodeComponent}, 
   { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
-  { path: 'manager-profile', component: ManagerProfileComponent, canActivate: [AuthGuard] },
-  { path: 'showCVuser', component: ShowCvuserComponent },
-  { path: 'Mypost', component: MypostComponent },
   { path: '**', redirectTo: '/not-found' }
 ];
 

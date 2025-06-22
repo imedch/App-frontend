@@ -18,8 +18,10 @@ export class HeadersComponent {
   isAdmin(): boolean {
     return localStorage.getItem('username') === 'admin';
   }
-  isManager(): boolean {
-    return localStorage.getItem('userRole') === 'manager';
+  isManager(): void {
+    const email = localStorage.getItem('email');
+    // Check if the email ends with '@actia-engineering.tn'
+    //return !!email && email.endsWith('@actia-engineering.tn');
   }
 
   logout(): void {

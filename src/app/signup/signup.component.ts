@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserServiceService } from '../service/user-service.service';
-import { Router } from '@angular/router';
+import { UserService } from '../services/user.service'; // Import your service
+import { Router } from '@angular/router'; // Import Router
 
 @Component({
   selector: 'app-signup',
@@ -13,11 +13,7 @@ export class SignupComponent {
   errorMessage: string | null = null;
   successMessage: string | null = null;
 
-  constructor(
-    private fb: FormBuilder,
-    private userService: UserServiceService,
-    private router: Router
-  ) {
+  constructor(private fb: FormBuilder, private userService: UserService, private router: Router) { // Inject Router
     this.signupForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
@@ -47,31 +43,21 @@ export class SignupComponent {
     this.errorMessage = null;
     const { username, email, password } = this.signupForm.value;
 
-    this.userService.getUserByEmail(email).subscribe({
-      next: (usersByEmail) => {
-        if (usersByEmail.length > 0) {
-          this.errorMessage = 'This email is already used.';
-          return;
-        }
+    // Send data to json-server to add user
+    const apiUrl = 'http://localhost:8081/users'; // json-server users endpoint
+    const signupData = { username, email, password };
 
-        this.userService.getUserByUsername(username).subscribe({
-          next: (usersByUsername) => {
-            if (usersByUsername.length > 0) {
-              this.errorMessage = 'This username is already taken.';
-              return;
-            }
-
-            // Save data in localStorage and redirect to confirmation
-            localStorage.setItem('pendingUser', JSON.stringify({ username, email, password }));
-            this.router.navigate(['/confirm-code'], { queryParams: { email, mode: 'signup' } });
-          },
-          error: () => {
-            this.errorMessage = 'Error checking username uniqueness.';
-          }
-        });
+    this.userService.addUser({ username, email, password }).subscribe({
+      next: (response) => {
+        console.log('Signup successful:', response);
+        this.successMessage = 'Signup successful! Please log in.';
+        this.errorMessage = null;
+        this.signupForm.reset();
       },
-      error: () => {
-        this.errorMessage = 'Error checking email uniqueness.';
+      error: (error) => {
+        console.error('Signup failed:', error);
+        this.errorMessage = 'Signup failed. Please try again.';
+        this.successMessage = null;
       }
     });
   }
