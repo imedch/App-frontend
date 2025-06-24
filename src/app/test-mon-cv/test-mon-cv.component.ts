@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { UserServiceService } from '../service/user-service.service';
 import { HttpClient, HttpEventType } from '@angular/common/http';
 import { CvUploadService } from '../service/cv-upload-service.service';
+import { Parser } from 'html2canvas/dist/types/css/syntax/parser';
+import { ParserServiceService } from '../service/parser-service.service';
 
 @Component({
   selector: 'app-test-mon-cv',
@@ -28,7 +30,8 @@ export class TestMonCvComponent implements OnInit {
   showUploadProgress = false;  // <-- Nouvelle variable pour afficher la barre
 
   constructor(
-    private parserService: CvUploadService,
+    private cvUploadService: CvUploadService,
+    private parserService: ParserServiceService,
     private userService: UserServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
@@ -36,8 +39,8 @@ export class TestMonCvComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.fetchLearningPath();
-    this.fetchSkillRecommendations();
+   /* this.fetchLearningPath();
+    this.fetchSkillRecommendations();**/
   }
 
   onFileSelected(event: Event): void {
@@ -97,7 +100,7 @@ export class TestMonCvComponent implements OnInit {
       postid: localStorage.getItem('postid') || ''
     };
 
-    this.parserService.uploadCV(this.selectedFile, metadata).subscribe({
+    this.cvUploadService.uploadCV(this.selectedFile, metadata).subscribe({
       next: (event) => {
         if (event.type === HttpEventType.UploadProgress && event.total) {
           this.uploadProgress = Math.round((100 * event.loaded) / event.total);
@@ -150,19 +153,36 @@ getMyNote(): void {
     } else {
       clearInterval(interval);
 
-      this.parserService.getScores().subscribe({
-        next: (scores) => {
-          this.customScore = scores.custom;
-          this.recommendations = scores.recommendations || [];
-          this.showResults = true;
+      
+     const userId: number = parseInt(localStorage.getItem('id') || '0', 10);
+
+
+      this.parserService.getCvsByUser(userId).subscribe({
+        next: (cvList) => {
+          if (cvList.length > 0) {
+            const latestCv = cvList[cvList.length - 1]; // or sort by date if available
+
+            console.log('Latest CV:', latestCv);
+
+            this.customScore = latestCv.scores?.custom || null;
+            this.recommendations = latestCv.skill_recommendations || [];
+
+            this.showResults = true;
+          } else {
+            this.errorMessage = 'Aucun CV trouvé pour cet utilisateur.';
+            this.customScore = null;
+            this.recommendations = [];
+            this.showResults = false;
+          }
+
           this.isGettingNote = false;
           this.cdr.detectChanges();
         },
         error: (err) => {
-          this.errorMessage = 'Échec de récupération des scores.';
+          this.errorMessage = 'Échec de récupération des données CV.';
           this.customScore = null;
-          this.isGettingNote = false;
           this.recommendations = [];
+          this.isGettingNote = false;
           this.showResults = false;
           this.cdr.detectChanges();
         }
@@ -170,6 +190,7 @@ getMyNote(): void {
     }
   }, 100);
 }
+
 
 
   goToChat(): void {
@@ -204,7 +225,7 @@ getMyNote(): void {
     });
   }
 
-  private fetchLearningPath(): void {
+/*  private fetchLearningPath(): void {
     this.parserService.getLearningPath().subscribe({
       next: (data) => {
         this.learningPath = data;
@@ -228,7 +249,7 @@ getMyNote(): void {
         this.skillRecommendations = null;
       }
     });
-  }
+  }*/
 
   getBadgeClass(score: number): string {
     if (score < 50) return 'bg-danger text-light';

@@ -7,7 +7,7 @@ import {User} from '../models/user.model';
   providedIn: 'root'
 })
 export class UserServiceService {
-  //private apiUrl = 'http://localhost:8081/users';
+  // URL de l'API pour les opérations liées aux utilisateurs
     private apiUrl = 'http://localhost:8081/auth';
 
 

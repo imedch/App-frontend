@@ -7,34 +7,22 @@ import { Observable } from 'rxjs';
 })
 export class CvUploadService {
   private uploadUrl = 'http://localhost:8081/cv';
+  
 
   constructor(private http: HttpClient) {}
 
   uploadCV(file: File, metadata: any): Observable<HttpEvent<any>> {
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('username', metadata.username);
-  formData.append('usermail', metadata.usermail);
-  formData.append('postname', metadata.postname);
-  formData.append('postid', metadata.postid);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('username', metadata.username);
+    formData.append('usermail', metadata.usermail);
+    formData.append('postname', metadata.postname);
+    formData.append('postid', metadata.postid);
 
-  return this.http.post(this.uploadUrl+"/upload", formData, {
-    reportProgress: true,
-    observe: 'events',
-    responseType: 'text' // ou 'json' selon ta réponse backend
-  });
-}
-
-  // Service pour récupérer les scores (utilisé dans getMyNote)
-  getScores(): Observable<any> {
-    return this.http.get<any>(`${this.uploadUrl}/scores`);
-  }
-
-  getLearningPath(): Observable<any> {
-    return this.http.get<any>(`${this.uploadUrl}/scores`);
-  }
-
-  getSkillRecommendations(): Observable<any> {
-    return this.http.get<any>(`${this.uploadUrl}/scores`);
+    return this.http.post(this.uploadUrl+"/upload", formData, {
+      reportProgress: true,
+      observe: 'events',
+      responseType: 'text'
+      });
   }
 }
