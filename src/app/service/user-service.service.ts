@@ -101,4 +101,8 @@ export class UserServiceService {
    checkUsernameExists(username: string): Observable<{ exists: boolean }> {
     return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-username?username=${username}`);
   }
+  sendCode(email: string): Observable<any> {
+  console.log("Sending confirmation code to:", email);
+  return this.http.post(`${this.apiUrl}/send-login-code`, { email });
+}
 }
