@@ -8,6 +8,7 @@ import { PostService } from '../service/post-service.service';
 })
 export class StatisticsComponent {
   posts: any[] = [];
+  cvs: any[] = [];
   statusCounts: { [key: string]: number } = {};
   selectedGadgetIndex: number | null = null;
 
@@ -15,6 +16,7 @@ export class StatisticsComponent {
 
   ngOnInit(): void {
     this.loadPosts();
+    this.loadCVs();
   }
 
   loadPosts(): void {
@@ -33,6 +35,16 @@ export class StatisticsComponent {
         console.error('Failed to load posts:', err);
       }
     });
+  }
+
+  loadCVs(): void {
+    // Example: replace with your actual CV fetching logic
+    // this.cvService.getCVs().subscribe({
+    //   next: (cvs) => {
+    //     this.cvs = cvs;
+    //     // Optionally, prepare CV statistics here
+    //   }
+    // });
   }
 
   calculateStatusCounts(): void {
@@ -92,6 +104,31 @@ export class StatisticsComponent {
     return sorted[0]?.createdAt ? new Date(sorted[0].createdAt).toLocaleString() : '';
   }
 
+  // --- CV statistics getters ---
+  get totalCVs(): number {
+    return this.cvs.length;
+  }
+
+  get mostRecentCVDate(): string {
+    if (!this.cvs.length) return '';
+    const sorted = [...this.cvs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return sorted[0]?.createdAt ? new Date(sorted[0].createdAt).toLocaleString() : '';
+  }
+
+  get averageSkillsPerCV(): number {
+    if (!this.cvs.length) return 0;
+    let totalSkills = 0;
+    for (const cv of this.cvs) {
+      if (cv.skills) {
+        totalSkills += cv.skills.split(',').filter((s: string) => s.trim()).length;
+      }
+    }
+    return +(totalSkills / this.cvs.length).toFixed(2);
+  }
+
+  // Add more as needed...
+  // --------------------------------
+
   // Add this gadgets array
   get gadgets() {
     return [
@@ -143,6 +180,27 @@ export class StatisticsComponent {
         icon: '📊',
         color: 'light', // changed from 'dark' to 'light'
         isStatusList: true
+      },
+      {
+        title: 'Total CVs',
+        value: this.totalCVs,
+        icon: '📄',
+        color: 'primary',
+        details: `You have uploaded ${this.totalCVs} CV(s).`
+      },
+      {
+        title: 'Most Recent CV',
+        value: this.mostRecentCVDate,
+        icon: '🕒',
+        color: 'info',
+        details: `The most recent CV was uploaded on ${this.mostRecentCVDate}.`
+      },
+      {
+        title: 'Avg. Skills per CV',
+        value: this.averageSkillsPerCV,
+        icon: '📊',
+        color: 'success',
+        details: `On average, each CV lists ${this.averageSkillsPerCV} skills.`
       }
     ];
   }
