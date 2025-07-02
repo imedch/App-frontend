@@ -123,5 +123,8 @@
       }
     }
   },
-  "defaultProject": "Mission_Entreprise_Angular"
+  "defaultProject": "Mission_Entreprise_Angular",
+  "cli": {
+    "analytics": "d0642b3f-fcd5-49a8-8c68-0e296d3d85e1"
+  }
 }
