@@ -12,7 +12,7 @@ export class ChatInterviewServiceService {
   // Subject pour partager les skills sélectionnées avec le chatbot
   private skillsSubject = new BehaviorSubject<string[] | null>(null);
   skills$ = this.skillsSubject.asObservable();
-
+  
   constructor(private http: HttpClient) { }
 
   // Setter pour envoyer les skills au chatbot (en mémoire + backend)
