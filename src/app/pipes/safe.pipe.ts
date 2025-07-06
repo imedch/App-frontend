@@ -30,4 +30,4 @@ export class SafePipe implements PipeTransform {
         return this.sanitizer.bypassSecurityTrustResourceUrl(value);
     }
   }
-}
+} 

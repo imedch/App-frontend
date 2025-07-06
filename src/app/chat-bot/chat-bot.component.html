@@ -47,9 +47,12 @@
                  (keyup.enter)="sendMessage()"
                  type="text"
                  class="form-control form-control-lg rounded-start-pill"
-                 placeholder="Type your message...">
+                 placeholder="Type your message..."
+                 [disabled]="!isInputEnabled">
+
           <button (click)="sendMessage()"
-                  class="btn btn-primary btn-lg rounded-end-pill d-flex align-items-center">
+                  class="btn btn-primary btn-lg rounded-end-pill d-flex align-items-center"
+                  [disabled]="!isInputEnabled">
             <i class="bi bi-send-fill me-1"></i> Send
           </button>
         </div>

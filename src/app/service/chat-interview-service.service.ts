@@ -7,12 +7,13 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ChatInterviewServiceService {
 
-  private apiUrl = 'http://172.0.0.196:5003'; // URL de l'API pour les interviews
+  //private apiUrl = 'http://172.0.0.1:5000'; // URL de l'API pour les interviews
+  private apiUrl = ''; // URL de l'API pour les interviews
 
   // Subject pour partager les skills sélectionnées avec le chatbot
   private skillsSubject = new BehaviorSubject<string[] | null>(null);
   skills$ = this.skillsSubject.asObservable();
-  
+
   constructor(private http: HttpClient) { }
 
   // Setter pour envoyer les skills au chatbot (en mémoire + backend)
@@ -31,7 +32,12 @@ export class ChatInterviewServiceService {
   fetchSkillsFromBackend(): Observable<{skills: string[]}> {
     return this.http.get<{skills: string[]}>(this.apiUrl);
   }
+ // sendposttochatbot(post: any): Observable<any> {
+ //   return this.http.post(`${this.apiUrl}/sendPost`, post);
+ // }
+
   sendposttochatbot(post: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/sendPost`, post);
-  }
+  return this.http.post('/sendPost', post);
+}
+
 }

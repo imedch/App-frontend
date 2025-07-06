@@ -25,11 +25,23 @@ export class ChatBotComponent implements OnInit, OnDestroy {
   apiPing     = '/ping';
   apiSendMail = '/send-final-score';
 
+  isInputEnabled = true;
+
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+  // Enable input after 5 seconds
     this.pingBackend();
     this.queryBot('');  // 1ʳᵉ question
+  }
+
+  private startSession(): void {
+    this.messages = [];
+    this.userInput = '';
+    this.finalScore = 0;
+    this.questionCount = 0;
+    this.sessionActive = true;
+    this.timeLeft = this.TIMEOUT_MS / 1000;
   }
 
   ngOnDestroy(): void {

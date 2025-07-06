@@ -70,18 +70,21 @@
           },
           "defaultConfiguration": "production"
         },
-        "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
-          "configurations": {
-            "production": {
-              "browserTarget": "Mission_Entreprise_Angular:build:production"
-            },
-            "development": {
-              "browserTarget": "Mission_Entreprise_Angular:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
+"serve": {
+  "builder": "@angular-devkit/build-angular:dev-server",
+  "options": {
+    "proxyConfig": "proxy.conf.json"
+  },
+  "configurations": {
+    "production": {
+      "browserTarget": "Mission_Entreprise_Angular:build:production"
+    },
+    "development": {
+      "browserTarget": "Mission_Entreprise_Angular:build:development"
+    }
+  },
+  "defaultConfiguration": "development"
+},
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
@@ -125,6 +128,6 @@
   },
   "defaultProject": "Mission_Entreprise_Angular",
   "cli": {
-    "analytics": "d0642b3f-fcd5-49a8-8c68-0e296d3d85e1"
+    "analytics": false
   }
 }
